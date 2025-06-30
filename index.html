@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+        .chat-container {
+            background: #34495e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .messages {
+            height: 300px;
+            overflow-y: auto;
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .messages p {
+            margin: 5px 0;
+            padding: 8px 10px;
+            background: #ecf0f1;
+            color: black;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .bot {
+            background: #e74c3c !important;
+            color: white !important;
+            margin-left: auto;
+        }
+        input[type="text"] {
+            width: 75%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            width: 20%;
+            padding: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <input id="input" type="text" placeholder="Type a message..." autocomplete="off"/>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+
+        function sendMessage() {
+            const msg = input.value.trim();
+            if (msg) {
+                socket.emit('chat message', msg);
+                input.value = '';
+            }
+        }
+
+        socket.on('chat message', function(msg) {
+            const p = document.createElement('p');
+            p.textContent = msg;
+            if (msg.startsWith("Bot:")) {
+                p.classList.add("bot");
+            }
+            messages.appendChild(p);
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        input.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
